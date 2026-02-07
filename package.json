@@ -37,7 +37,7 @@
   ],
   "scripts": {
     "dev": "tsdown --watch",
-    "build": "tsdown",
+    "build": "tsdown --minify",
     "test": "vitest",
     "lint": "eslint . --cache",
     "release": "bumpp"
