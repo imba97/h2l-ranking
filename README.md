@@ -28,32 +28,32 @@ import 'h2l-ranking/style.css'
 
 const rankings = ref({
   hang: [
-    { title: '《中二病也要谈恋爱》', url: '/images/1.png', description: '本人入宅作，给到一个夯' },
-    { title: '《玉子爱情故事》', url: '/images/2.png' },
-    { title: '《葬送的芙莉莲》', url: '/images/3.png' },
-    { title: '《我心里危险的东西》', url: '/images/4.png' },
-    { title: '《碧蓝之海 第一季》', url: '/images/5.png' },
-    { title: '《双城之战》', url: '/images/6.png' },
-    { title: '《男子高中生的日常》', url: '/images/7.png' },
-    { title: '《樱花庄的宠物女孩》', url: '/images/8.png' },
-    { title: '《NO GAME NO LIFE 游戏人生》', url: '/images/9.png' },
-    { title: '《OVERLORD》', url: '/images/10.png' },
-    { title: '《言叶之庭》', url: '/images/11.png' },
-    { title: '《命运石之门》', url: '/images/12.png' }
+    { title: '《中二病也要谈恋爱》', cover: '/images/1.png', url: 'https://example.com/1', description: '本人入宅作，给到一个夯' },
+    { title: '《玉子爱情故事》', cover: '/images/2.png' },
+    { title: '《葬送的芙莉莲》', cover: '/images/3.png' },
+    { title: '《我心里危险的东西》', cover: '/images/4.png' },
+    { title: '《碧蓝之海 第一季》', cover: '/images/5.png' },
+    { title: '《双城之战》', cover: '/images/6.png' },
+    { title: '《男子高中生的日常》', cover: '/images/7.png' },
+    { title: '《樱花庄的宠物女孩》', cover: '/images/8.png' },
+    { title: '《NO GAME NO LIFE 游戏人生》', cover: '/images/9.png' },
+    { title: '《OVERLORD》', cover: '/images/10.png' },
+    { title: '《言叶之庭》', cover: '/images/11.png' },
+    { title: '《命运石之门》', cover: '/images/12.png' }
   ],
   upper: [
-    { title: '《搞笑漫画日和》', url: '/images/13.png' },
-    { title: '《胆大党》', url: '/images/14.png' },
-    { title: '《荒川爆笑团》', url: '/images/15.png' },
-    { title: '《银魂》', url: '/images/16.png' },
-    { title: '《某科学的超电磁炮》', url: '/images/17.png' },
-    { title: '《魔法禁书目录》', url: '/images/18.png' },
-    { title: '《花牌情缘》', url: '/images/19.png' },
-    { title: '《热带雨林的爆笑生活》', url: '/images/20.png' },
-    { title: '《零之使魔》', url: '/images/21.png' },
-    { title: '《魔法少女小圆》', url: '/images/22.png' },
-    { title: '《齐木楠雄的灾难》', url: '/images/23.png' },
-    { title: '《Re：从零开始的异世界生活》', url: '/images/24.png' }
+    { title: '《搞笑漫画日和》', cover: '/images/13.png' },
+    { title: '《胆大党》', cover: '/images/14.png' },
+    { title: '《荒川爆笑团》', cover: '/images/15.png' },
+    { title: '《银魂》', cover: '/images/16.png' },
+    { title: '《某科学的超电磁炮》', cover: '/images/17.png' },
+    { title: '《魔法禁书目录》', cover: '/images/18.png' },
+    { title: '《花牌情缘》', cover: '/images/19.png' },
+    { title: '《热带雨林的爆笑生活》', cover: '/images/20.png' },
+    { title: '《零之使魔》', cover: '/images/21.png' },
+    { title: '《魔法少女小圆》', cover: '/images/22.png' },
+    { title: '《齐木楠雄的灾难》', cover: '/images/23.png' },
+    { title: '《Re：从零开始的异世界生活》', cover: '/images/24.png' }
   ],
   middle: [],
   lower: [],
@@ -82,7 +82,8 @@ const rankings = ref({
 ```ts
 interface RankingItem {
   title: string // 标题
-  url: string // 图片地址
+  cover: string // 封面图片地址
+  url?: string // 跳转链接（可选），预览时右上角显示外部链接按钮
   description?: string // 描述（可选）
 }
 

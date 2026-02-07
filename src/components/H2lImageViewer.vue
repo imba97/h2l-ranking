@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { CloseIcon, ExternalLinkIcon } from '../icons'
 
 interface Props {
   show: boolean
   src: string
+  url?: string
 }
 
 const props = defineProps<Props>()
@@ -133,10 +135,18 @@ onUnmounted(() => {
         @click.self="close"
       >
         <button class="h2l-image-viewer__close" @click="close">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
+          <CloseIcon />
         </button>
+        <a
+          v-if="url"
+          :href="url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="h2l-image-viewer__link"
+          title="打开链接"
+        >
+          <ExternalLinkIcon />
+        </a>
         <div class="h2l-image-viewer__content">
           <img :src="src" :style="imageStyle" alt="Preview">
         </div>
@@ -194,6 +204,28 @@ onUnmounted(() => {
 }
 
 .h2l-image-viewer__close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.h2l-image-viewer__link {
+  position: absolute;
+  top: 20px;
+  right: 72px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: none;
+}
+
+.h2l-image-viewer__link:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
 

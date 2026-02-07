@@ -1,6 +1,7 @@
 export interface RankingItem {
   title: string
-  url: string
+  cover: string
+  url?: string
   description?: string
 }
 
