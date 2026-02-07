@@ -4,7 +4,7 @@
 
 一个简单易用的 Vue 3 排行展示组件，支持横向滚动和悬停提示。
 
-![](./.github/screenshot/component.png)
+![](https://github.com/imba97/h2l-ranking/blob/main/.github/screenshot/component.png?raw=true)
 
 ## 特性
 
