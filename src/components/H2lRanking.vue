@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Rankings } from '../types'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { useResize } from '../hooks'
 import H2lImageViewer from './H2lImageViewer.vue'
 import H2lTooltip from './H2lTooltip.vue'
 
@@ -28,10 +29,21 @@ const rowStyle = computed(() => ({
   width: rowWidth.value > 0 ? `${rowWidth.value}px` : undefined
 }))
 
-onMounted(() => {
+// 计算行宽度
+function updateRowWidth() {
   if (rootRef.value && labelsRef.value) {
     rowWidth.value = rootRef.value.clientWidth - labelsRef.value.clientWidth
   }
+}
+
+// 使用 useResize hook 监听窗口变化，200ms 防抖
+useResize(updateRowWidth, 200)
+
+// 组件挂载后计算
+onMounted(() => {
+  nextTick(() => {
+    updateRowWidth()
+  })
 })
 
 function handleWheel(e: WheelEvent) {
