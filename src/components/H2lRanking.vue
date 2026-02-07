@@ -187,6 +187,7 @@ function openViewer(cover: string, url?: string, title?: string, description?: s
 .h2l-ranking__labels {
   display: flex;
   flex-direction: column;
+  max-width: 120px;
   min-width: 100px;
   width: 20%;
   border-right: 1px solid #000;
