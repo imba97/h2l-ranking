@@ -4,6 +4,8 @@
 
 一个简单易用的 Vue 3 排行展示组件，支持横向滚动和悬停提示。
 
+![](./.github/screenshot/component.png)
+
 ## 特性
 
 - 🖱️ 鼠标滚轮横向滚动
