@@ -1,17 +1,25 @@
 <script setup lang="ts">
 import type { Rankings } from '../types'
 import { computed, onMounted, ref } from 'vue'
+import H2lImageViewer from './H2lImageViewer.vue'
 import H2lTooltip from './H2lTooltip.vue'
 
 interface Props {
   rankings: Rankings
+  enableImageViewer?: boolean
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  enableImageViewer: true
+})
 
 const rootRef = ref<HTMLElement>()
 const labelsRef = ref<HTMLElement>()
 const rowWidth = ref(0)
+
+// 图片查看器状态
+const viewerShow = ref(false)
+const viewerSrc = ref('')
 
 const rowStyle = computed(() => ({
   width: rowWidth.value > 0 ? `${rowWidth.value}px` : undefined
@@ -30,10 +38,19 @@ function handleWheel(e: WheelEvent) {
     target.scrollLeft += e.deltaY * 0.5
   }
 }
+
+// 打开图片查看器
+function openViewer(url: string) {
+  if (props.enableImageViewer) {
+    viewerSrc.value = url
+    viewerShow.value = true
+  }
+}
 </script>
 
 <template>
   <div ref="rootRef" class="h2l-ranking">
+    <H2lImageViewer v-model:show="viewerShow" :src="viewerSrc" />
     <div ref="labelsRef" class="h2l-ranking__labels">
       <div class="h2l-ranking__label h2l-ranking__label--hang">
         夯
@@ -56,7 +73,7 @@ function handleWheel(e: WheelEvent) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.hang" :key="`hang-${index}`">
             <template #default>
-              <div class="h2l-ranking__item">
+              <div class="h2l-ranking__item" @click="openViewer(item.url)">
                 <img :src="item.url" :alt="item.title">
               </div>
             </template>
@@ -73,7 +90,7 @@ function handleWheel(e: WheelEvent) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.upper" :key="`upper-${index}`">
             <template #default>
-              <div class="h2l-ranking__item">
+              <div class="h2l-ranking__item" @click="openViewer(item.url)">
                 <img :src="item.url" :alt="item.title">
               </div>
             </template>
@@ -90,7 +107,7 @@ function handleWheel(e: WheelEvent) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.middle" :key="`middle-${index}`">
             <template #default>
-              <div class="h2l-ranking__item">
+              <div class="h2l-ranking__item" @click="openViewer(item.url)">
                 <img :src="item.url" :alt="item.title">
               </div>
             </template>
@@ -107,7 +124,7 @@ function handleWheel(e: WheelEvent) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.lower" :key="`lower-${index}`">
             <template #default>
-              <div class="h2l-ranking__item">
+              <div class="h2l-ranking__item" @click="openViewer(item.url)">
                 <img :src="item.url" :alt="item.title">
               </div>
             </template>
@@ -124,7 +141,7 @@ function handleWheel(e: WheelEvent) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.la" :key="`la-${index}`">
             <template #default>
-              <div class="h2l-ranking__item">
+              <div class="h2l-ranking__item" @click="openViewer(item.url)">
                 <img :src="item.url" :alt="item.title">
               </div>
             </template>
