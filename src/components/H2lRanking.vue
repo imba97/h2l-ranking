@@ -21,6 +21,8 @@ const rowWidth = ref(0)
 const viewerShow = ref(false)
 const viewerSrc = ref('')
 const viewerUrl = ref('')
+const viewerTitle = ref('')
+const viewerDescription = ref('')
 
 const rowStyle = computed(() => ({
   width: rowWidth.value > 0 ? `${rowWidth.value}px` : undefined
@@ -41,18 +43,20 @@ function handleWheel(e: WheelEvent) {
 }
 
 // 打开图片查看器
-function openViewer(cover: string, url?: string) {
-  if (props.enableImageViewer) {
-    viewerSrc.value = cover
-    viewerUrl.value = url || ''
-    viewerShow.value = true
-  }
+function openViewer(cover: string, url?: string, title?: string, description?: string) {
+  if (!props.enableImageViewer)
+    return
+  viewerSrc.value = cover
+  viewerUrl.value = url || ''
+  viewerTitle.value = title || ''
+  viewerDescription.value = description || ''
+  viewerShow.value = true
 }
 </script>
 
 <template>
   <div ref="rootRef" class="h2l-ranking">
-    <H2lImageViewer v-model:show="viewerShow" :src="viewerSrc" :url="viewerUrl" />
+    <H2lImageViewer v-model:show="viewerShow" :src="viewerSrc" :url="viewerUrl" :title="viewerTitle" :description="viewerDescription" />
     <div ref="labelsRef" class="h2l-ranking__labels">
       <div class="h2l-ranking__label h2l-ranking__label--hang">
         夯
@@ -75,7 +79,7 @@ function openViewer(cover: string, url?: string) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.hang" :key="`hang-${index}`">
             <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url)">
+              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
                 <img :src="item.cover" :alt="item.title">
               </div>
             </template>
@@ -92,7 +96,7 @@ function openViewer(cover: string, url?: string) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.upper" :key="`upper-${index}`">
             <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url)">
+              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
                 <img :src="item.cover" :alt="item.title">
               </div>
             </template>
@@ -109,7 +113,7 @@ function openViewer(cover: string, url?: string) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.middle" :key="`middle-${index}`">
             <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url)">
+              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
                 <img :src="item.cover" :alt="item.title">
               </div>
             </template>
@@ -126,7 +130,7 @@ function openViewer(cover: string, url?: string) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.lower" :key="`lower-${index}`">
             <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url)">
+              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
                 <img :src="item.cover" :alt="item.title">
               </div>
             </template>
@@ -143,7 +147,7 @@ function openViewer(cover: string, url?: string) {
         <div class="h2l-ranking__items" @wheel="handleWheel">
           <H2lTooltip v-for="(item, index) in rankings.la" :key="`la-${index}`">
             <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url)">
+              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
                 <img :src="item.cover" :alt="item.title">
               </div>
             </template>

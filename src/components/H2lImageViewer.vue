@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { CloseIcon, ExternalLinkIcon } from '../icons'
 
 interface Props {
   show: boolean
   src: string
   url?: string
+  title?: string
+  description?: string
 }
 
 const props = defineProps<Props>()
@@ -17,6 +19,11 @@ const containerRef = ref<HTMLElement>()
 const scale = ref(1)
 const maxScale = 5
 const minScale = 0.5
+
+// 描述展开状态
+const descriptionExpanded = ref(false)
+const descriptionOverflowing = ref(false)
+const descriptionTextRef = ref<HTMLElement>()
 
 // 触摸状态
 const touchState = ref({
@@ -34,12 +41,26 @@ const imageStyle = computed(() => ({
   transition: touchState.value.active ? 'none' : 'transform 0.2s ease-out',
 }))
 
+// 检查描述是否溢出
+async function checkDescriptionOverflow() {
+  await nextTick()
+  if (descriptionTextRef.value) {
+    descriptionOverflowing.value = descriptionTextRef.value.scrollHeight > descriptionTextRef.value.clientHeight
+  }
+}
+
+// 切换描述展开
+function toggleDescription() {
+  descriptionExpanded.value = !descriptionExpanded.value
+}
+
 // 关闭弹窗
 function close() {
   emit('update:show', false)
-  // 重置缩放
+  // 重置缩放和展开状态
   setTimeout(() => {
     scale.value = 1
+    descriptionExpanded.value = false
   }, 200)
 }
 
@@ -105,10 +126,20 @@ function handleKeydown(e: KeyboardEvent) {
   }
 }
 
-// 监听 show 变化，重置缩放
+// 监听 show 变化，重置状态
 watch(() => props.show, (newVal) => {
-  if (!newVal) {
+  if (newVal) {
+    checkDescriptionOverflow()
+  } else {
     scale.value = 1
+    descriptionExpanded.value = false
+  }
+})
+
+// 监听描述变化
+watch(() => props.description, () => {
+  if (props.show) {
+    checkDescriptionOverflow()
   }
 })
 
@@ -150,6 +181,28 @@ onUnmounted(() => {
         <div class="h2l-image-viewer__content">
           <img :src="src" :style="imageStyle" alt="Preview">
         </div>
+        <!-- 标题和描述信息 -->
+        <div v-if="title || description" class="h2l-image-viewer__info">
+          <div class="h2l-image-viewer__info-header">
+            <div v-if="title" class="h2l-image-viewer__title">{{ title }}</div>
+            <button
+              v-if="description && descriptionOverflowing"
+              class="h2l-image-viewer__more"
+              @click="toggleDescription"
+            >
+              {{ descriptionExpanded ? '收起' : '更多' }}
+            </button>
+          </div>
+          <div v-if="description" class="h2l-image-viewer__description">
+            <div
+              ref="descriptionTextRef"
+              class="h2l-image-viewer__description-text"
+              :class="{ 'h2l-image-viewer__description-text--expanded': descriptionExpanded }"
+            >
+              {{ description }}
+            </div>
+          </div>
+        </div>
       </div>
     </Transition>
   </Teleport>
@@ -176,6 +229,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 0;
 }
 
 .h2l-image-viewer__content img {
@@ -196,11 +251,13 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
   border: none;
   border-radius: 50%;
   color: #fff;
   cursor: pointer;
   transition: background-color 0.2s;
+  z-index: 1;
 }
 
 .h2l-image-viewer__close:hover {
@@ -217,15 +274,83 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
   border: none;
   border-radius: 50%;
   color: #fff;
   cursor: pointer;
   transition: background-color 0.2s;
   text-decoration: none;
+  z-index: 1;
 }
 
 .h2l-image-viewer__link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.h2l-image-viewer__info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding: 16px 20px;
+}
+
+.h2l-image-viewer__info-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.h2l-image-viewer__title {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.h2l-image-viewer__description {
+  margin-top: 12px;
+}
+
+.h2l-image-viewer__description-text {
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  transition: -webkit-line-clamp 0.3s ease;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+}
+
+.h2l-image-viewer__description-text--expanded {
+  -webkit-line-clamp: unset;
+  max-height: none;
+}
+
+.h2l-image-viewer__more {
+  padding: 2px 8px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.h2l-image-viewer__more:hover {
+  color: #fff;
   background-color: rgba(255, 255, 255, 0.2);
 }
 
