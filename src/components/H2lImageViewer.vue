@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useImageDrag, useTouchDrag } from '../hooks'
 import { CloseIcon, ExternalLinkIcon } from '../icons'
 
 interface Props {
@@ -25,21 +26,19 @@ const descriptionExpanded = ref(false)
 const descriptionOverflowing = ref(false)
 const descriptionTextRef = ref<HTMLElement>()
 
-// 触摸状态
-const touchState = ref({
-  active: false,
-  startDistance: 0,
-  startScale: 1,
-  centerX: 0,
-  centerY: 0,
-})
+// 拖拽和触摸 hooks
+const { dragState, startDrag, onDragMove, endDrag, resetPosition } = useImageDrag()
+const { touchState, onTouchStart, onTouchMove, onTouchEnd } = useTouchDrag(dragState)
 
-// 计算缩放后的样式
-const imageStyle = computed(() => ({
-  transform: `scale(${scale.value})`,
-  transformOrigin: 'center center',
-  transition: touchState.value.active ? 'none' : 'transform 0.2s ease-out',
-}))
+// 计算缩放和位移后的样式
+const imageStyle = computed(() => {
+  const isDragging = dragState.value.active || touchState.value.isDragging
+  return {
+    transform: `translate(${dragState.value.translateX}px, ${dragState.value.translateY}px) scale(${scale.value})`,
+    transformOrigin: 'center center',
+    transition: isDragging || touchState.value.active ? 'none' : 'transform 0.2s ease-out',
+  }
+})
 
 // 检查描述是否溢出
 async function checkDescriptionOverflow() {
@@ -57,9 +56,10 @@ function toggleDescription() {
 // 关闭弹窗
 function close() {
   emit('update:show', false)
-  // 重置缩放和展开状态
+  // 重置缩放、位移和展开状态
   setTimeout(() => {
     scale.value = 1
+    resetPosition()
     descriptionExpanded.value = false
   }, 200)
 }
@@ -71,52 +71,38 @@ function handleWheel(e: WheelEvent) {
   scale.value = Math.max(minScale, Math.min(maxScale, scale.value + delta))
 }
 
+// 鼠标拖拽开始
+function handleMouseDown(e: MouseEvent) {
+  // 只在缩放状态下允许拖拽
+  if (scale.value <= 1)
+    return
+  e.preventDefault()
+  startDrag(e.clientX, e.clientY)
+}
+
+// 鼠标拖拽移动
+function handleMouseMove(e: MouseEvent) {
+  onDragMove(e.clientX, e.clientY)
+}
+
+// 鼠标拖拽结束
+function handleMouseUp() {
+  endDrag()
+}
+
 // 触摸开始
 function handleTouchStart(e: TouchEvent) {
-  if (e.touches.length === 2) {
-    e.preventDefault()
-    const touch1 = e.touches[0]
-    const touch2 = e.touches[1]
-    const distance = Math.hypot(
-      touch2.clientX - touch1.clientX,
-      touch2.clientY - touch1.clientY,
-    )
-    const centerX = (touch1.clientX + touch2.clientX) / 2
-    const centerY = (touch1.clientY + touch2.clientY) / 2
-
-    touchState.value = {
-      active: true,
-      startDistance: distance,
-      startScale: scale.value,
-      centerX,
-      centerY,
-    }
-  }
+  onTouchStart(e, scale.value)
 }
 
 // 触摸移动
 function handleTouchMove(e: TouchEvent) {
-  if (e.touches.length === 2 && touchState.value.active) {
-    e.preventDefault()
-    const touch1 = e.touches[0]
-    const touch2 = e.touches[1]
-    const distance = Math.hypot(
-      touch2.clientX - touch1.clientX,
-      touch2.clientY - touch1.clientY,
-    )
-
-    const scaleRatio = distance / touchState.value.startDistance
-    const newScale = Math.max(
-      minScale,
-      Math.min(maxScale, touchState.value.startScale * scaleRatio),
-    )
-    scale.value = newScale
-  }
+  onTouchMove(e, scale, minScale, maxScale)
 }
 
 // 触摸结束
 function handleTouchEnd() {
-  touchState.value.active = false
+  onTouchEnd()
 }
 
 // ESC 键关闭
@@ -132,6 +118,7 @@ watch(() => props.show, (newVal) => {
     checkDescriptionOverflow()
   } else {
     scale.value = 1
+    resetPosition()
     descriptionExpanded.value = false
   }
 })
@@ -145,10 +132,14 @@ watch(() => props.description, () => {
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseup', handleMouseUp)
 })
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
+  document.removeEventListener('mousemove', handleMouseMove)
+  document.removeEventListener('mouseup', handleMouseUp)
 })
 </script>
 
@@ -179,7 +170,7 @@ onUnmounted(() => {
           <ExternalLinkIcon />
         </a>
         <div class="h2l-image-viewer__content">
-          <img :src="src" :style="imageStyle" alt="Preview">
+          <img :src="src" :style="imageStyle" alt="Preview" @mousedown="handleMouseDown">
         </div>
         <!-- 标题和描述信息 -->
         <div v-if="title || description" class="h2l-image-viewer__info">
