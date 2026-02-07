@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useBreakpoint } from '../hooks'
 
 const triggerRef = ref<HTMLElement>()
 const showTooltip = ref(false)
 const position = ref({ x: 0, y: 0 })
+const { isMobile } = useBreakpoint()
+
+// 移动端不显示 tooltip
+const shouldShowTooltip = computed(() => showTooltip.value && !isMobile.value)
 
 function handleMouseEnter() {
-  if (!triggerRef.value)
+  if (!triggerRef.value || isMobile.value)
     return
   const rect = triggerRef.value.getBoundingClientRect()
   position.value = {
@@ -37,7 +42,7 @@ onUnmounted(() => {
     <Teleport to="body">
       <Transition name="h2l-tooltip">
         <div
-          v-if="showTooltip"
+          v-if="shouldShowTooltip"
           class="h2l-tooltip__content"
           :style="{ left: `${position.x}px`, top: `${position.y}px` }"
         >
