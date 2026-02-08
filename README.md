@@ -1,8 +1,6 @@
 # h2l-ranking
 
-从夯到拉排行组件。
-
-一个简单易用的 Vue 3 排行展示组件，支持横向滚动和悬停提示。
+一个简单易用的 Vue 3 从夯到拉排行组件
 
 ![](https://github.com/imba97/h2l-ranking/blob/main/.github/screenshot/component.png?raw=true)
 
