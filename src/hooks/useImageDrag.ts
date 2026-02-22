@@ -86,14 +86,12 @@ export function useTouchDrag(dragState: ReturnType<typeof useImageDrag>['dragSta
   // 触摸开始
   function onTouchStart(e: TouchEvent, scale: number) {
     if (e.touches.length === 1) {
-      // 单指拖拽
-      if (scale > 1) {
-        touchState.value.isDragging = true
-        touchState.value.startX = e.touches[0].clientX
-        touchState.value.startY = e.touches[0].clientY
-        touchState.value.startTranslateX = dragState.value.translateX
-        touchState.value.startTranslateY = dragState.value.translateY
-      }
+      // 单指拖拽 - 允许在任何缩放比例下拖动
+      touchState.value.isDragging = true
+      touchState.value.startX = e.touches[0].clientX
+      touchState.value.startY = e.touches[0].clientY
+      touchState.value.startTranslateX = dragState.value.translateX
+      touchState.value.startTranslateY = dragState.value.translateY
     }
     else if (e.touches.length === 2) {
       // 双指缩放

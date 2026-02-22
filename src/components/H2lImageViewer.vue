@@ -73,9 +73,6 @@ function handleWheel(e: WheelEvent) {
 
 // 鼠标拖拽开始
 function handleMouseDown(e: MouseEvent) {
-  // 只在缩放状态下允许拖拽
-  if (scale.value <= 1)
-    return
   e.preventDefault()
   startDrag(e.clientX, e.clientY)
 }
